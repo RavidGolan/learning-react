@@ -1,4 +1,4 @@
-// RoutingApp.tsx
+// App.tsx
 import {
     BrowserRouter,       // Enables routing using the browser's history API
     Routes,              // Wraps all route definitions
@@ -6,37 +6,36 @@ import {
     Link,                // Link component for client-side navigation
     useParams,           // Hook to access path parameters like :id
     useNavigate,         // Hook to change URL programmatically
-    useSearchParams      // Hook to access/query ?key=value from the URL
+    useSearchParams,     // Hook to access/query ?key=value from the URL
+    Outlet               // Used for nested route rendering
 } from 'react-router-dom';
 
-// Basic route component
+// Basic home route
 function Home() {
     return <h2>🏠 Home</h2>;
 }
 
-// Programmatic navigation example
+// Programmatic navigation
 function Profile() {
     const navigate = useNavigate();
     return (
         <div>
             <h2>👤 Profile</h2>
-            {/* Navigates to "/" when clicked */}
             <button onClick={() => navigate('/')}>Go Home</button>
         </div>
     );
 }
 
-// Route that uses both path param (:id) and query param (?details=true)
+// Dynamic path param + query param
 function UserDetail() {
-    const { id } = useParams(); // Get ":id" from the path (e.g., /users/42)
+    const { id } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
-    const showDetails = searchParams.get('details') === 'true'; // Read "?details=true"
+    const showDetails = searchParams.get('details') === 'true';
 
     return (
         <div>
             <h2>User ID: {id}</h2>
             {showDetails && <p>Showing detailed view.</p>}
-            {/* Set query param "?details=true" */}
             <button onClick={() => setSearchParams({ details: 'true' })}>
                 Show Details
             </button>
@@ -44,35 +43,57 @@ function UserDetail() {
     );
 }
 
-// The app component with router setup
-export default function RoutingApp() {
+// Parent route for nested content
+function Dashboard() {
     return (
-        // BrowserRouter must wrap the part of your app using routing
-        <BrowserRouter>
-
-            {/* Link is like <a>, but doesn't reload the page */}
+        <div>
+            <h2>📊 Dashboard</h2>
             <nav>
-                <Link to="/">Home</Link> |{' '}
-                <Link to="/profile">Profile</Link> |{' '}
-                <Link to="/users/42">User 42</Link>
+                {/* These are nested routes, rendered inside <Outlet /> */}
+                <Link to="stats">Stats</Link> |{' '}
+                <Link to="settings">Settings</Link>
             </nav>
 
-            {/* Routes holds all <Route> definitions */}
-            <Routes>
-                {/* Static path route */}
-                <Route path="/" element={<Home />} />
-
-                {/* Another static path route */}
-                <Route path="/profile" element={<Profile />} />
-
-                {/* Dynamic route with path param ":id" */}
-                <Route path="/users/:id" element={<UserDetail />} />
-
-                {/* Catch-all route (404 fallback) */}
-                <Route path="*" element={<h2>404 Not Found</h2>} />
-            </Routes>
-
-        </BrowserRouter>
+            {/* <Outlet> is where nested child routes will render */}
+            <Outlet />
+        </div>
     );
 }
 
+// Nested components
+function Stats() {
+    return <h3>📈 Dashboard Stats</h3>;
+}
+
+function Settings() {
+    return <h3>⚙️ Dashboard Settings</h3>;
+}
+
+// App with routing structure
+export default function RoutingApp() {
+    return (
+        <BrowserRouter>
+            <nav>
+                <Link to="/">Home</Link> |{' '}
+                <Link to="/profile">Profile</Link> |{' '}
+                <Link to="/users/42">User 42</Link> |{' '}
+                <Link to="/dashboard">Dashboard</Link>
+            </nav>
+
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/users/:id" element={<UserDetail />} />
+
+                {/* Nested Route structure */}
+                <Route path="/dashboard" element={<Dashboard />}>
+                    <Route path="stats" element={<Stats />} />
+                    <Route path="settings" element={<Settings />} />
+                </Route>
+
+                {/* Fallback route */}
+                <Route path="*" element={<h2>404 Not Found</h2>} />
+            </Routes>
+        </BrowserRouter>
+    );
+}
