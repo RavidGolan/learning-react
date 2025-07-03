@@ -1,9 +1,9 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import RoutingApp from './Routing/RoutingApp.tsx'
+import StateEffectHooksApp from "./StateEffectHooks/StateEffectHooksApp.tsx";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RoutingApp />
+    <StateEffectHooksApp />
   </StrictMode>,
 )
